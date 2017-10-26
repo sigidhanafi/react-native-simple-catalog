@@ -49,7 +49,7 @@ class HomeScreen extends Component {
           <View style={styles.col}>
             <TouchableOpacity
               style={styles.categoryContainer}
-              onPress={() => navigate('Category', { title: 'Mobil'})}
+              onPress={() => navigate('Category', { title: 'Mobil', data: 'car'})}
             >
               <Image
                 source={carIcon}
@@ -59,11 +59,16 @@ class HomeScreen extends Component {
             </TouchableOpacity>
           </View>
           <View style={styles.col}>
-            <Image
-              source={vespaIcon}
-              style={styles.icon}
-            />
-            <Text>Motor</Text>
+            <TouchableOpacity
+              style={styles.categoryContainer}
+              onPress={() => navigate('Category', { title: 'Motor', data: 'motorcycle'})}
+            >
+              <Image
+                source={vespaIcon}
+                style={styles.icon}
+              />
+              <Text>Motor</Text>
+            </TouchableOpacity>
           </View>
           <View style={styles.col}>
             <Image
@@ -80,21 +85,21 @@ class HomeScreen extends Component {
               source={computerIcon}
               style={styles.icon}
             />
-            <Text>Mobil</Text>
+            <Text>Komputer/ Laptop</Text>
           </View>
           <View style={styles.col}>
             <Image
               source={phoneIcon}
               style={styles.icon}
             />
-            <Text>Motor</Text>
+            <Text>Smartphone</Text>
           </View>
           <View style={styles.col}>
             <Image
               source={cameraIcon}
               style={styles.icon}
             />
-            <Text>Sepeda</Text>
+            <Text>Kamera</Text>
           </View>
         </View>
 
@@ -104,21 +109,21 @@ class HomeScreen extends Component {
               source={homeIcon}
               style={styles.icon}
             />
-            <Text>Mobil</Text>
+            <Text>Rumah</Text>
           </View>
           <View style={styles.col}>
             <Image
               source={sofaIcon}
               style={styles.icon}
             />
-            <Text>Motor</Text>
+            <Text>Furnitur</Text>
           </View>
           <View style={styles.col}>
             <Image
               source={tshirtIcon}
               style={styles.icon}
             />
-            <Text>Sepeda</Text>
+            <Text>Pakaian</Text>
           </View>
         </View>
       </View>
@@ -152,6 +157,10 @@ const styles = StyleSheet.create({
   col: {
     flex: 1,
     margin: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  categoryContainer: {
     justifyContent: 'center',
     alignItems: 'center',
   },

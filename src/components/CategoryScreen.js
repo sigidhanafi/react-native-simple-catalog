@@ -1,12 +1,30 @@
 import React from 'react'
 import { Text, View, FlatList, Image, StyleSheet } from 'react-native'
 
-import { car } from '../example-data'
+import { car, motorcycle } from '../example-data'
 
 class CategoryScreen extends React.Component {
 
+  constructor (props) {
+    super(props)
+    const { data } = props.navigation.state.params
+    let dataSource
+    switch (data) {
+      case 'car':
+        dataSource = car
+        break
+      case 'motorcycle':
+        dataSource = motorcycle
+        break
+      default:
+        dataSource = []
+    }
+    this.state = {
+      dataSource,
+    }
+  }
+
   renderItem = (car) => {
-    console.log(car)
     return (
       <View style={styles.listContainer}>
         <View style={styles.leftContainer}>
@@ -27,10 +45,11 @@ class CategoryScreen extends React.Component {
   }
 
   render () {
+    const { dataSource } = this.state
     return (
       <View style={styles.container}>
         <FlatList
-          data={car}
+          data={dataSource}
           renderItem={({item}) => this.renderItem(item)}
           keyExtractor={item => item.id}
         />
