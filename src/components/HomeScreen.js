@@ -12,7 +12,9 @@ import {
   View,
   Image,
   TouchableOpacity,
-} from 'react-native';
+} from 'react-native'
+import { AppEventsLogger } from 'react-native-fbsdk'
+
 import carIcon from '../images/car.png'
 import vespaIcon from '../images/vespa.png'
 import bicycleIcon from '../images/bicycle.png'
@@ -34,6 +36,12 @@ class HomeScreen extends Component {
   static navigationOptions = {
     title: 'Home',
   }
+
+  constructor (props) {
+    super(props)
+    AppEventsLogger.logEvent('page', { name: 'home' })
+  }
+
   render() {
     const { navigate } = this.props.navigation;    
     return (
