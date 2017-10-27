@@ -1,5 +1,5 @@
 import React from 'react'
-import { Text, View, FlatList, Image, StyleSheet } from 'react-native'
+import { Text, View, FlatList, Image, StyleSheet, TouchableOpacity } from 'react-native'
 
 import { car, motorcycle } from '../example-data'
 
@@ -25,8 +25,12 @@ class CategoryScreen extends React.Component {
   }
 
   renderItem = (car) => {
+    const { navigate } = this.props.navigation
     return (
-      <View style={styles.listContainer}>
+      <TouchableOpacity
+        onPress={() => navigate('Detail', { title: 'Detail', data: car})}
+        style={styles.listContainer}
+      >
         <View style={styles.leftContainer}>
           <Image
             source={{ uri: car.imageUrl }}
@@ -40,7 +44,7 @@ class CategoryScreen extends React.Component {
         <View style={styles.rightContainer}>
           <Text style={styles.price}>{car.price}</Text>
         </View>
-      </View>
+      </TouchableOpacity>
     )
   }
 
