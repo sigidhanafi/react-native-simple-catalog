@@ -15,7 +15,11 @@ import {
   TouchableOpacity,
   Dimensions,
 } from 'react-native'
-import { AppEventsLogger, LoginButton, AccessToken } from 'react-native-fbsdk'
+import {
+  AppEventsLogger,
+  LoginButton,
+  AccessToken
+} from 'react-native-fbsdk'
 
 import carIcon from '../images/car.png'
 import vespaIcon from '../images/vespa.png'
