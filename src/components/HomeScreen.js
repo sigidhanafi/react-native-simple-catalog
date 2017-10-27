@@ -13,7 +13,7 @@ import {
   Image,
   TouchableOpacity,
 } from 'react-native'
-import { AppEventsLogger } from 'react-native-fbsdk'
+import { AppEventsLogger, LoginButton, AccessToken } from 'react-native-fbsdk'
 
 import carIcon from '../images/car.png'
 import vespaIcon from '../images/vespa.png'
@@ -134,6 +134,29 @@ class HomeScreen extends Component {
             <Text>Pakaian</Text>
           </View>
         </View>
+        
+        <Text style={styles.instructions}>
+          Login untuk mendapatkan penawaran diskon menarik!
+        </Text>
+
+        <LoginButton
+          publishPermissions={["publish_actions"]}
+          onLoginFinished={
+            (error, result) => {
+              if (error) {
+                alert("login has error: " + result.error);
+              } else if (result.isCancelled) {
+                alert("login is cancelled.");
+              } else {
+                AccessToken.getCurrentAccessToken().then(
+                  (data) => {
+                    alert(data.accessToken.toString())
+                  }
+                )
+              }
+            }
+          }
+          onLogoutFinished={() => alert("logout.")}/>
       </View>
     );
   }
@@ -156,7 +179,8 @@ const styles = StyleSheet.create({
   instructions: {
     textAlign: 'center',
     color: '#333333',
-    marginBottom: 5,
+    marginTop: 20,
+    marginBottom: 20,
   },
   row: {
     flexDirection: 'row',
