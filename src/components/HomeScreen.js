@@ -56,9 +56,10 @@ class HomeScreen extends Component {
     AccessToken.getCurrentAccessToken().then(
       (data) => {
         this.setState({ login: true, token: data.accessToken.toString() })
-        // alert(data.accessToken.toString())
+        console.log(data.accessToken.toString())
       }
     )
+    .catch(error => console.log('Error', error))
   }
 
   render() {
@@ -182,6 +183,7 @@ class HomeScreen extends Component {
                       // alert(data.accessToken.toString())
                     }
                   )
+                  .catch(error => console.log('Error', error))
                 }
               }
             }
