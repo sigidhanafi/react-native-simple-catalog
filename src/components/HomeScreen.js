@@ -18,7 +18,9 @@ import {
 import {
   AppEventsLogger,
   LoginButton,
-  AccessToken
+  AccessToken,
+  GraphRequest,
+  GraphRequestManager,
 } from 'react-native-fbsdk'
 
 import carIcon from '../images/car.png'
@@ -175,6 +177,21 @@ class HomeScreen extends Component {
                     (data) => {
                       this.setState({ login: true, token: data.accessToken.toString() })
                       // alert(data.accessToken.toString())
+                      const userDataRequest =
+                        new GraphRequest(
+                          'me?fields=id,name,first_name,picture{url}',
+                          null,
+                          function (error, result) {
+                            if (!error) {
+                              console.log('ID', result.id)
+                              console.log('Name', result.name)
+                              console.log('Image', result.profile.data.url)
+                            } else {
+                              console.log('Error', error)
+                            }
+                          }
+                        )
+                      new GraphRequestManager().addRequest(userDataRequest).start()
                     }
                   )
                   .catch(error => console.log('Error', error))
