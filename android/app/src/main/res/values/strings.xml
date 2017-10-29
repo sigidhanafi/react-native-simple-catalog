@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Fake OLX</string>
     <string name="facebook_app_id">130677821023014</string>
+    <string name="ak_client_token">863ac661d5d172bfe0a75cf6a5872a1c</string>
 </resources>
