@@ -22,6 +22,10 @@ import {
   GraphRequest,
   GraphRequestManager,
 } from 'react-native-fbsdk'
+import RNAccountKit, {
+  Color,
+  StatusBarStyle,
+} from 'react-native-facebook-account-kit'
 
 import carIcon from '../images/car.png'
 import vespaIcon from '../images/vespa.png'
@@ -43,19 +47,49 @@ class HomeScreen extends Component {
     super(props)
     AppEventsLogger.logEvent('page', { name: 'home' })
     this.state = {
-      login: false,
-      token: '',
+      loginFacebook: false,
+      loginSms: false,
+      tokenFacebook: null,
+      tokenSms: null,
     }
+
+    RNAccountKit.configure({
+      responseType: 'token',
+      titleType: 'login',
+      initialAuthState: '',
+      initialEmail: 'sigidhanafi@email.com',
+      initialPhoneCountryPrefix: '+62',
+      initialPhoneNumber: '085743506887',
+      facebookNotificationsEnabled: false, // true by default
+      readPhoneStateEnabled: false, // true by default,
+      receiveSMS: true, // true by default,
+      countryWhitelist: ['ID'], // [] by default
+      countryBlacklist: [], // [] by default
+      defaultCountry: 'ID',
+    })
   }
 
   componentDidMount () {
-    AccessToken.getCurrentAccessToken().then(
-      (data) => {
-        this.setState({ login: true, token: data.accessToken.toString() })
-        console.log(data.accessToken.toString())
-      }
-    )
-    .catch(error => console.log('Error', error))
+    AccessToken.getCurrentAccessToken()
+      .then(data => {
+          if (data && data.accessToken) {
+            this.setState({ loginFacebook: true, tokenFacebook: data.accessToken.toString() })
+            console.log(data.accessToken.toString())
+          }
+        }
+      )
+      .catch(error => console.log('Error', error))
+    
+    RNAccountKit.getCurrentAccessToken()
+      .then((token) => {
+        if (!token) {
+          this.setState({ loginSms: false, tokenSms: null })
+        } else {
+          this.setState({ loginSms: true, tokenSms: token })
+        }
+        console.log(`Current access token:`, token)
+      })
+      .catch(error => console.log('Error', error))
   }
 
   render() {
@@ -154,52 +188,97 @@ class HomeScreen extends Component {
           
           <View style={styles.separator} />
 
-          {!this.state.login ? (
-            <Text style={styles.instructions}>
-              Jadi member untuk mendapatkan penawaran diskon menarik!
-            </Text>
-          ) : (
+          {this.state.loginFacebook || this.state.loginSms ? (
             <Text style={styles.instructions}>
               Selamat! Dengan bergabung menjadi member, Anda berhak mendapatkan diskon hingga 70%.
             </Text>
+          ) : (
+            <Text style={styles.instructions}>
+              Jadi member untuk mendapatkan penawaran diskon menarik!
+            </Text>
           )}
 
-          <LoginButton
-            publishPermissions={["publish_actions"]}
-            onLoginFinished={
-              (error, result) => {
-                if (error) {
-                  alert("login has error: " + result.error);
-                } else if (result.isCancelled) {
-                  alert("login is cancelled.");
-                } else {
-                  AccessToken.getCurrentAccessToken().then(
-                    (data) => {
-                      this.setState({ login: true, token: data.accessToken.toString() })
-                      // alert(data.accessToken.toString())
-                      const userDataRequest =
-                        new GraphRequest(
-                          'me?fields=id,name,first_name,picture{url}',
-                          null,
-                          function (error, result) {
-                            if (!error) {
-                              console.log('ID', result.id)
-                              console.log('Name', result.name)
-                              console.log('Image', result.profile.data.url)
-                            } else {
-                              console.log('Error', error)
+          {!this.state.loginSms ? (
+            <LoginButton
+              publishPermissions={["publish_actions"]}
+              onLoginFinished={
+                (error, result) => {
+                  if (error) {
+                    alert("login has error: " + result.error);
+                  } else if (result.isCancelled) {
+                    alert("login is cancelled.");
+                  } else {
+                    AccessToken.getCurrentAccessToken().then(
+                      (data) => {
+                        this.setState({ loginFacebook: true, tokenFacebook: data.accessToken.toString() })
+                        // alert(data.accessToken.toString())
+                        const userDataRequest =
+                          new GraphRequest(
+                            'me?fields=id,name,first_name,picture{url}',
+                            null,
+                            function (error, result) {
+                              if (!error) {
+                                console.log('ID', result.id)
+                                console.log('Name', result.name)
+                                console.log('Image', result.picture.data.url)
+                              } else {
+                                console.log('Error', error)
+                              }
                             }
-                          }
-                        )
-                      new GraphRequestManager().addRequest(userDataRequest).start()
-                    }
-                  )
-                  .catch(error => console.log('Error', error))
+                          )
+                        new GraphRequestManager().addRequest(userDataRequest).start()
+                      }
+                    )
+                    .catch(error => console.log('Error', error))
+                  }
                 }
               }
-            }
-            onLogoutFinished={() => alert("logout.")}
-          />
+              onLogoutFinished={() => {
+                this.setState({ loginFacebook: false, tokenFacebook: '' })
+              }}
+            />
+          ) : null}
+
+          {!this.state.loginSms && !this.state.loginFacebook ? (
+            <View style={{ justifyContent: 'center' }}>
+              <Text>atau login dengan</Text>
+              <View style={{ flexDirection: 'row' }}>
+                <TouchableOpacity
+                  style={styles.loginSms}
+                  onPress={() => {
+                    RNAccountKit.loginWithPhone()
+                    .then((token) => {
+                      if (!token) {
+                        console.log('Login cancelled')
+                        this.setState({ loginSms: false, tokenSms: null })
+                      } else {
+                        console.log(`Logged with phone. Token: ${token}`)
+                        this.setState({ loginSms: true, tokenSms: token })
+                      }
+                    })
+                  }}
+                >
+                  <Text style={styles.white}>SMS</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ) : null}
+          {this.state.loginSms && !this.state.loginFacebook ? (
+            <View>
+              <TouchableOpacity
+                style={styles.loginSms}
+                onPress={() => {
+                  RNAccountKit.logout()
+                  .then(() => {
+                    console.log('Logged out')
+                    this.setState({ loginSms: false, tokenSms: null })
+                  })
+                }}
+              >
+                <Text style={styles.white}>Logout</Text>
+              </TouchableOpacity>
+            </View>
+          ) : null}
         </View>
       </ScrollView>
     );
@@ -271,11 +350,23 @@ const styles = StyleSheet.create({
     fontSize: 50,
     fontWeight: 'bold',
   },
+  white: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
   separator: {
     marginTop: 50,
     width: Dimensions.get('window').width / 2,
     height: 1,
     borderWidth: 0.2,
     borderColor: '#FD8324',
+  },
+  loginSms: {
+    padding: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#5A2F80',
+    borderRadius: 3,
   }
 });
